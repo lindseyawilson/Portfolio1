@@ -1,0 +1,15 @@
+---
+title: "Portfolio1.Rmd"
+output: html_document
+date: "2023-02-01"
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+My goal in this first portfolio project is to recreate a graph from my first year project poster.
+A screenshot of the graph is below:
+
+
+![Screenshot of my first year project graph](/Users/lawilson1999/Desktop/Data Science Spring 2023/Portfolio/Portfolio 1/FirstYearProjGraph.png)
