@@ -12,4 +12,22 @@ My goal in this first portfolio project is to recreate a graph from my first yea
 A screenshot of the graph is below:
 
 
-![Screenshot of my first year project graph](/Users/lawilson1999/Desktop/Data Science Spring 2023/Portfolio/Portfolio 1/FirstYearProjGraph.png)
+```{r original-image, echo=FALSE, eval=TRUE}
+knitr::include_graphics("FirstYearProjGraph.png")
+```
+
+The first thing we need to do is import the data, which I've done below.
+The data was originally wide, and I restructured it to long format in SPSS.
+Definitely not a long-term solution, but I wanted this project to focus on the graphics (I'll try the restructuring in R for one of my future portfolio projects).
+
+```{r import-data}
+library(haven)
+data <- read_sav("Long_HWInitialAnalysis.sav")
+```
+
+
+
+
+
+
+
