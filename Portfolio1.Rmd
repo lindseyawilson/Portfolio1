@@ -6,6 +6,7 @@ date: "2023-02-01"
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
+library(tidyverse)
 ```
 
 My goal in this first portfolio project is to recreate a graph from my first year project poster.
@@ -25,6 +26,57 @@ library(haven)
 data <- read_sav("Long_HWInitialAnalysis.sav")
 ```
 
+Let's check out what this dataset looks like:
+
+```{r inspect}
+head(data)
+names(data)
+```
+
+This is mostly what we wanted, but I want to create a new variable so that the dose groups aren't indexed just by numbers.
+For example, a dose code of 1 indicates the saline treatment, but that isn't obvious at all from the table we have here.
+Let's go ahead and make that change:
+
+```{r create-dose-name-variable}
+data <- data %>%
+  mutate(dosename = case_when(Dose == 1 ~ 'VEH',
+                             Dose == 2 ~ 'LO',
+                             Dose == 3 ~ 'MED',
+                             Dose == 4 ~ 'HI',
+                             Dose == 5 ~ 'DAMGO'))
+```
+
+It's also a little unclear what the time variable in the existing dataset means.
+Cumulative food intake for each animal was measured every five minutes, so we need to multiply the time variable by 5 so that our time variable actually gives us the time since the feeding session started:
+
+```{r create-time-variable}
+data <- data %>%
+  mutate(realtime = Time * 5)
+```
+
+And now that we've finished wrangling our data we can start graphing.
+Let's just give it a very rough first pass to see what happens when I plot intake over time:
+
+```{r first-pass}
+ggplot(data = data, mapping = aes(x = realtime,
+                                  y = Intake,
+                                  color = dosename)) + 
+  geom_point() + 
+  geom_line()
+```
+
+And it's at this point I realized that the points in my original plot are group *means*, and the points in my current data frame are from individual animals.
+Just to follow this line of thinking, I'm going to graph the data from each animal separately.
+Each plot should have the same general form of the original plot, but it'll at least confirm that nothing went horribly wrong in my data processing:
+
+```{r confirmation}
+ggplot(data = data, mapping = aes(x = realtime,
+                     y = Intake,
+                     color = dosename)) + 
+  geom_point() + 
+  geom_line() +
+  facet_wrap(~ rat, ncol = 2)
+```
 
 
 
