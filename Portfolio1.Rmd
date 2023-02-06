@@ -65,7 +65,7 @@ ggplot(data = data, mapping = aes(x = realtime,
   geom_line()
 ```
 
-And it's at this point I realized that the points in my original plot are group *means*, and the points in my current data frame are from individual animals.
+At this point I realized that the points in my original plot are group *means*, and the points in my current data frame are from individual animals.
 Just to follow this line of thinking, I'm going to graph the data from each animal separately.
 Each plot should have the same general form of the original plot (the plot I want), and that will at least confirm that nothing went horribly wrong in my data processing:
 
@@ -135,8 +135,57 @@ ggplot(mapping = aes(x = realtime,
   geom_line()
 ```
 
+Next let's turn to the error bars.
+I realized at this point the data as I have it isn't really set up for me to add error bars, but since this project is consistently requiring data restructuring I figure I may as well try to do this bout of it in R.
+Let's try it below:
 
+```{r final-restructure}
+#Puts the data we've been working with in wide format
+data_wider <- means_sds %>%
+  pivot_wider(names_from = rat,
+              values_from = Intake)
 
+#Creates a subset of the data by extracting the dose, time, and mean
+data_means <- data_wider[,c('dosename', 'realtime', 'Average')]
+data_means <- data_means %>%
+  slice_head(n=120)
 
+#Creates a subset of the data by extracting the dose, time, and standard deviation
+data_sds <- data_wider[,c('dosename', 'realtime', 'StDev')]
+data_sds <- data_sds %>%
+  slice_tail(n=120)
 
+#Merges the two subsets we just created
+data_proper <- merge(data_means,data_sds)
+```
 
+Now that we've essentially created our own dataset from scratch, we're ready to try graphing it.
+
+```{r graph-with-error-bars}
+data_proper %>%
+  filter(dosename == "VEH" | dosename == "MED" | dosename == "HI") %>%
+ggplot(mapping = aes(x = realtime,
+                     y = Average,
+                     color = dosename)) + 
+  geom_point() + 
+  geom_line() + 
+  geom_errorbar(aes(ymin = Average - (StDev/sqrt(7)), ymax = Average + StDev/sqrt(7)))
+
+#I realized the error bars actually were standard errors, so I divided StDev by sqrt(7) to convert
+```
+
+And here we have our finished plot!
+
+I want to point out that this plot is good, but it isn't *great*.
+An alternative way to represent it that jumps out at me is to use a smooth:
+
+```{r smooth-alternative}
+data %>%
+  filter(dosename == "VEH" | dosename == "MED" | dosename == "HI") %>%
+ggplot(mapping = aes(x = realtime,
+                     y = Intake,
+                     color = dosename)) + 
+  geom_point() + 
+  geom_smooth()
+```
+A little messy, but there's potential I think!
